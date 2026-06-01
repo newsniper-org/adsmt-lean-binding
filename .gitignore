@@ -1,0 +1,8 @@
+/target
+/build
+/lake-packages
+/.lake
+**/*.olean
+**/*.ilean
+**/*.hash
+Cargo.lock

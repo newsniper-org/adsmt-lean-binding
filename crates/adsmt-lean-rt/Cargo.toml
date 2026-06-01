@@ -1,0 +1,22 @@
+[package]
+name = "adsmt-lean-rt"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Rust-side leo4 binding for adsmt — exposes adsmt SMT engine to Lean 4 via canonical ABI"
+repository.workspace = true
+
+[lib]
+# cdylib for the leo4 reverse-direction wrapper (Lean dlopens this).
+# rlib so downstream Rust consumers can link directly too.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+leo4 = { workspace = true }
+leo4-abi = { workspace = true }
+
+adsmt-cert = { workspace = true }
+adsmt-core = { workspace = true }
+adsmt-engine = { workspace = true }
+adsmt-parser = { workspace = true }
