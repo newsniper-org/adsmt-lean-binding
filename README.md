@@ -47,7 +47,7 @@ published-form intent is:
 
 | Dependency | Published pin | Why |
 |---|---|---|
-| leo4 | `tag = "v1.0.0-rc.1"` | Phase 10 cuttable state |
+| leo4 | `tag = "v1.0.0-rc.4"` | Phase 10 cuttable state + RC.2-4 typed-enum fix chain |
 | adsmt-cert, adsmt-core, adsmt-engine, adsmt-parser | `branch = "testing"` | Consumer line until adsmt v1.0.0 cuts |
 
 When adsmt main cuts v1.0.0 stable, the adsmt pins switch to
@@ -62,18 +62,24 @@ those lines and remove the path entries when this repo goes
 public or when the leo4 submodule chain is ready for direct git
 consumption.
 
-## Wire format (v0.1)
+## Wire format
 
-The L1 export `run_check_sat(script: String) -> String` returns a
-**JSON-encoded verdict** in v0.1. Typed `AdsmtVerdict`
-marshalling is L2 follow-up work — once leo4's `LeanMarshal`
-discipline accepts the inductive shape declared in
-`lake/Adsmt/Verdict.lean`, the wire signature switches to the
-typed enum directly.
+The L1 export `run_check_sat(script: String) -> AdsmtVerdict` is
+**typed from day one** as of v0.1.1. leo4 v1.0.0-rc.4's patch
+chain (RC.2 output-side fix + RC.3 forward-direction input
+multi-candidate lookup + RC.4 reverse-direction input lift)
+together let `#[leo4::export]` accept user-defined enum / struct
+types in parameter and return positions without a String/JSON
+wire workaround.
 
-The placeholder `Adsmt.parseVerdictJson` on the Lean side
-currently maps any JSON payload to `.unknown` — real JSON
-dispatching lands when the engine wiring stabilises.
+The leo4 schema-IDL handshake ensures byte-identical mangling
+between `crates/adsmt-lean-rt/src/verdict.rs` and
+`lake/Adsmt/Verdict.lean`; if the shape changes on one side, the
+other must move in lockstep and the schema hash rotates.
+
+(v0.1's initial String/JSON wire — landed in commit `1bc6733`
+against RC.1 — was reverted in `8bd2821` once the RC.4 patch
+chain closed the loop.)
 
 ## What L1 / L2 / L3 mean
 
