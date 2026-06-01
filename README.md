@@ -42,10 +42,10 @@ adsmt-lean-binding/
 
 ## Version pins
 
-This is a **separate repo** from adsmt main and leo4. It depends
-on both via git-rev pins:
+This is a **separate repo** from adsmt main and leo4. The
+published-form intent is:
 
-| Dependency | Pin | Why |
+| Dependency | Published pin | Why |
 |---|---|---|
 | leo4 | `tag = "v1.0.0-rc.1"` | Phase 10 cuttable state |
 | adsmt-cert, adsmt-core, adsmt-engine, adsmt-parser | `branch = "testing"` | Consumer line until adsmt v1.0.0 cuts |
@@ -53,6 +53,27 @@ on both via git-rev pins:
 When adsmt main cuts v1.0.0 stable, the adsmt pins switch to
 `tag = "v1.0.0"`. When leo4 cuts v1.0.0 stable, the leo4 pin
 switches to `tag = "v1.0.0"`.
+
+**v0.1 dev: local path deps.** Cargo.toml currently uses
+`path = "../leo4/..."` and `path = "../AD1/..."` so the skeleton
+builds without going through GitHub. The git-pinned alternatives
+are in the same file as comment-only declarations — uncomment
+those lines and remove the path entries when this repo goes
+public or when the leo4 submodule chain is ready for direct git
+consumption.
+
+## Wire format (v0.1)
+
+The L1 export `run_check_sat(script: String) -> String` returns a
+**JSON-encoded verdict** in v0.1. Typed `AdsmtVerdict`
+marshalling is L2 follow-up work — once leo4's `LeanMarshal`
+discipline accepts the inductive shape declared in
+`lake/Adsmt/Verdict.lean`, the wire signature switches to the
+typed enum directly.
+
+The placeholder `Adsmt.parseVerdictJson` on the Lean side
+currently maps any JSON payload to `.unknown` — real JSON
+dispatching lands when the engine wiring stabilises.
 
 ## What L1 / L2 / L3 mean
 

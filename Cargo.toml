@@ -13,17 +13,28 @@ license = "BSD-2-Clause OR Apache-2.0 OR LGPL-2.1-or-later"
 repository = "https://github.com/newsniper-org/adsmt-lean-binding"
 
 [workspace.dependencies]
-# leo4 v1.0.0-rc.1 — pinned at the RC1 tag for the first
-# adsmt-lean-binding cycle. Bump tag when leo4 cuts a stable
-# v1.0.0 or post-RC1 milestones land.
-leo4 = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.1", features = ["rust-exports"] }
-leo4-abi = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.1" }
-leo4-macros = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.1" }
+# leo4 v1.0.0-rc.1 — local path during v0.1 skeleton work.
+# When this repo goes public (or when leo4 cleans up its
+# nested-submodule chain), swap the path lines for the
+# tag-pinned git declarations below:
+#
+#   leo4        = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.1", features = ["rust-exports"] }
+#   leo4-abi    = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.1" }
+#   leo4-macros = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.1" }
+leo4        = { path = "../leo4/crates/leo4", features = ["rust-exports"] }
+leo4-abi    = { path = "../leo4/crates/leo4-abi" }
+leo4-macros = { path = "../leo4/crates/leo4-macros" }
 
-# adsmt main, testing-channel pins. The testing channel is the
-# consumer-facing line until adsmt main cuts v1.0.0 (see memory
-# `v1_0_0_scope_expansion.md` in the adsmt main repo).
-adsmt-cert   = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
-adsmt-core   = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
-adsmt-engine = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
-adsmt-parser = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
+# adsmt main — local path during v0.1 skeleton work.
+# Published form switches these to `branch = "testing"` git
+# pins (testing is the consumer-facing line until adsmt main
+# cuts v1.0.0; see memory `v1_0_0_scope_expansion.md`):
+#
+#   adsmt-cert   = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
+#   adsmt-core   = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
+#   adsmt-engine = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
+#   adsmt-parser = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
+adsmt-cert   = { path = "../AD1/adsmt-cert" }
+adsmt-core   = { path = "../AD1/adsmt-core" }
+adsmt-engine = { path = "../AD1/adsmt-engine" }
+adsmt-parser = { path = "../AD1/adsmt-parser" }

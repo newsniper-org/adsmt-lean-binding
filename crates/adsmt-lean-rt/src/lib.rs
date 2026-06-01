@@ -21,20 +21,23 @@ pub use verdict::{AbductiveCandidate, AdsmtVerdict};
 
 /// Run `(check-sat)` on an SMT-LIB v2 script.
 ///
-/// Returns a typed [`AdsmtVerdict`] capturing one of the four
-/// adsmt verdict shapes (sat / unsat / abductive / unknown).
+/// **Wire format (v0.1)**: returns a JSON string encoding the
+/// verdict. Typed [`AdsmtVerdict`] marshalling is L2 follow-up
+/// work — leo4's IDL discipline requires either `LeanMarshal`
+/// derive support for our enum shape or an explicit IDL
+/// declaration; for v0.1 we use String to unblock the binding
+/// surface and revisit when L2 lands.
 ///
 /// Wire-equivalent to invoking the `lu-smt` CLI binary on the
 /// same input, but without the subprocess fork — the engine
 /// runs in-process via leo4's canonical ABI.
 #[leo4::export]
-pub fn run_check_sat(script: String) -> AdsmtVerdict {
-    // v0.1 skeleton: stub verdict. Real engine wiring lands once
-    // the adsmt testing channel's `adsmt-engine::Solver` exposes
-    // the unified `check_sat(script_text)` entry point this
-    // binding wants to call.
+pub fn run_check_sat(script: String) -> String {
+    // v0.1 skeleton: stub verdict (JSON-encoded Unknown). Real
+    // engine wiring lands once the adsmt testing channel's
+    // `adsmt-engine::Solver` exposes a unified
+    // `check_sat(script_text)` entry point this binding can call.
     let _ = script;
-    AdsmtVerdict::Unknown {
-        reason: "adsmt-lean-rt v0.1 skeleton — engine wiring pending".to_string(),
-    }
+    r#"{"unknown":{"reason":"adsmt-lean-rt v0.1 skeleton — engine wiring pending"}}"#
+        .to_string()
 }
