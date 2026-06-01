@@ -116,7 +116,16 @@ impl Driver {
             Command::GetProof => Step::Continue,
             Command::GetModel => Step::Continue,
             Command::GetUnsatCore => Step::Continue,
-            Command::Push(_) | Command::Pop(_) => Step::Continue,
+            Command::Push(n) => {
+                for _ in 0..n {
+                    self.solver.push();
+                }
+                Step::Continue
+            }
+            Command::Pop(n) => {
+                self.solver.pop(n);
+                Step::Continue
+            }
             Command::Reset | Command::ResetAssertions => {
                 self.solver.reset();
                 Step::Continue
@@ -146,7 +155,7 @@ pub(crate) fn verdict_of(r: SatResult) -> AdsmtVerdict {
                 .map(|(idx, c)| AbductiveCandidate {
                     id: idx as u64,
                     rank: idx as u32,
-                    hypothesis: c.hypotheses.iter().map(|t| format!("{t:?}")).collect(),
+                    hypothesis: c.hypotheses.iter().map(|t| format!("{t}")).collect(),
                     justification: c.sources.join(","),
                 })
                 .collect(),
@@ -226,6 +235,57 @@ mod tests {
                 assert_eq!(c.rank, 0);
                 assert_eq!(c.hypothesis.len(), 1);
                 assert_eq!(c.justification, "test-source");
+            }
+            other => panic!("expected Abductive, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn run_check_sat_handles_push_pop_scopes() {
+        // Push then immediate check-sat: empty scope is trivially Sat.
+        let v = run_check_sat("(push 1)\n(check-sat)\n");
+        assert!(
+            matches!(v, AdsmtVerdict::Sat { .. }),
+            "expected Sat after push, got {v:?}"
+        );
+    }
+
+    #[test]
+    fn run_check_sat_handles_reset_between_check_sats() {
+        // Reset + first check-sat — the first check-sat fires
+        // immediately on the empty post-reset state.
+        let v = run_check_sat("(reset)\n(check-sat)\n");
+        assert!(
+            matches!(v, AdsmtVerdict::Sat { .. }),
+            "expected Sat after reset, got {v:?}"
+        );
+    }
+
+    #[test]
+    fn verdict_of_abductive_renders_hypothesis_via_display() {
+        // The hypothesis vec uses Term's Display impl, not the
+        // Debug form — this asserts a Display-shaped substring,
+        // not the full SMT-LIB rendering (Display is the prose-y
+        // adsmt-core form, not strict SMT-LIB; that's fine for
+        // v0.2 binding).
+        let pattern = Term::var("p", Type::bool_());
+        let abducible = Abducible::new(pattern, "test-source");
+        let cand = Candidate::with_one(&abducible);
+
+        let verdict = verdict_of(SatResult::Abductive { candidates: vec![cand] });
+        match verdict {
+            AdsmtVerdict::Abductive { candidates } => {
+                let h = &candidates[0].hypothesis[0];
+                // Display form starts with the var name `p`, the
+                // Debug form would start with `Var(Var { ...`.
+                assert!(
+                    h.starts_with('p'),
+                    "hypothesis should render via Display, got {h:?}"
+                );
+                assert!(
+                    !h.starts_with("Var("),
+                    "hypothesis should NOT render via Debug, got {h:?}"
+                );
             }
             other => panic!("expected Abductive, got {other:?}"),
         }
