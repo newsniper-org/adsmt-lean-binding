@@ -9,32 +9,28 @@
 //! adsmt main repo. This crate is the L1 implementation slot
 //! (forward direction binding replacing `lu-smt` subprocess +
 //! `adsmt-ffi` C ABI calls from Lean tactic code).
-//!
-//! Status (2026-06-01): v0.1 skeleton. The engine call site is
-//! stubbed out; the binding surface + verdict marshalling are
-//! the priority. Real engine wiring follows once the
-//! `AdsmtVerdict` shape stabilises on the Lean side.
 
+pub mod driver;
 pub mod verdict;
 
 pub use verdict::{AbductiveCandidate, AdsmtVerdict};
 
-/// Run `(check-sat)` on an SMT-LIB v2 script.
+/// Run an SMT-LIB v2 script and report the verdict for the first
+/// `(check-sat)` invocation that fires (or `Unknown { reason:
+/// "no check-sat in script" }` if the script ran to completion
+/// without one).
 ///
-/// Returns a typed [`AdsmtVerdict`] capturing one of the four
-/// adsmt verdict shapes (sat / unsat / abductive / unknown).
+/// Mirror of `lu-smt` CLI's dispatch loop, run in-process via
+/// leo4's canonical ABI — no subprocess fork, no text-shaped
+/// wire on the verdict return.
 ///
-/// Wire-equivalent to invoking the `lu-smt` CLI binary on the
-/// same input, but without the subprocess fork — the engine
-/// runs in-process via leo4's canonical ABI.
+/// Parse errors and dispatch-time errors surface as
+/// `AdsmtVerdict::Unknown { reason: "<error description>" }`.
+/// Engine `unsat` certificates are rendered as S-expression text
+/// in the `cert` field; consumers wanting the raw `Certificate`
+/// AST should call the adsmt-cert library directly instead of
+/// crossing the leo4 boundary.
 #[leo4::export]
 pub fn run_check_sat(script: String) -> AdsmtVerdict {
-    // v0.1 skeleton: stub verdict. Real engine wiring lands once
-    // the adsmt testing channel's `adsmt-engine::Solver` exposes
-    // the unified `check_sat(script_text)` entry point this
-    // binding wants to call.
-    let _ = script;
-    AdsmtVerdict::Unknown {
-        reason: "adsmt-lean-rt v0.1 skeleton — engine wiring pending".to_string(),
-    }
+    driver::run_check_sat(&script)
 }

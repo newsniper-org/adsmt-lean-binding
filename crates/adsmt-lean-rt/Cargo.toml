@@ -20,3 +20,5 @@ adsmt-cert = { workspace = true }
 adsmt-core = { workspace = true }
 adsmt-engine = { workspace = true }
 adsmt-parser = { workspace = true }
+adsmt-theory = { workspace = true }
+adsmt-abduce = { workspace = true }

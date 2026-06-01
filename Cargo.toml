@@ -43,7 +43,11 @@ leo4-macros = { path = "../leo4/crates/leo4-macros" }
 #   adsmt-core   = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
 #   adsmt-engine = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
 #   adsmt-parser = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
+#   adsmt-theory = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
+#   adsmt-abduce = { git = "https://github.com/newsniper-org/adsmt.git", branch = "testing" }
 adsmt-cert   = { path = "../AD1/adsmt-cert" }
 adsmt-core   = { path = "../AD1/adsmt-core" }
 adsmt-engine = { path = "../AD1/adsmt-engine" }
 adsmt-parser = { path = "../AD1/adsmt-parser" }
+adsmt-theory = { path = "../AD1/adsmt-theory" }
+adsmt-abduce = { path = "../AD1/adsmt-abduce" }
