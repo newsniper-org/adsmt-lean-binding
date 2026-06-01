@@ -128,7 +128,7 @@ impl Driver {
     }
 }
 
-fn verdict_of(r: SatResult) -> AdsmtVerdict {
+pub(crate) fn verdict_of(r: SatResult) -> AdsmtVerdict {
     match r {
         SatResult::Sat => AdsmtVerdict::Sat { model: Vec::new() },
         SatResult::Unsat { certificate } => {
@@ -151,5 +151,93 @@ fn verdict_of(r: SatResult) -> AdsmtVerdict {
                 })
                 .collect(),
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use adsmt_abduce::abducible::Abducible;
+    use adsmt_abduce::sld::Candidate;
+    use adsmt_core::{Term, Type};
+
+    // L1 public-surface smoke. Demonstrates the run_check_sat
+    // entry from end to end against a trivial SMT-LIB script.
+
+    #[test]
+    fn run_check_sat_handles_trivially_sat_script() {
+        // No assertions → SAT. Solver returns SatResult::Sat
+        // → AdsmtVerdict::Sat { model: empty }.
+        let v = run_check_sat("(check-sat)\n");
+        assert!(
+            matches!(v, AdsmtVerdict::Sat { .. }),
+            "expected Sat, got {v:?}"
+        );
+    }
+
+    #[test]
+    fn run_check_sat_parse_error_surfaces_as_unknown() {
+        let v = run_check_sat("this is not valid smt-lib");
+        match v {
+            AdsmtVerdict::Unknown { reason } => {
+                assert!(
+                    reason.contains("parse"),
+                    "Unknown reason should mention 'parse', got {reason:?}"
+                );
+            }
+            other => panic!("expected Unknown(parse), got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn run_check_sat_missing_check_sat_returns_unknown() {
+        // No `(check-sat)` → run to completion → Unknown sentinel.
+        let v = run_check_sat("(set-logic ALL)\n");
+        match v {
+            AdsmtVerdict::Unknown { reason } => {
+                assert_eq!(reason, "no check-sat in script");
+            }
+            other => panic!("expected Unknown(no check-sat), got {other:?}"),
+        }
+    }
+
+    // L2 wire smoke. Exercises verdict_of directly against a
+    // hand-built SatResult::Abductive — proves the
+    // AbductiveCandidate marshalling chain (Rust struct →
+    // LeanMarshal-derived encoding → Lean structure) sits on a
+    // verdict_of conversion that actually fires.
+
+    #[test]
+    fn verdict_of_abductive_maps_candidates() {
+        let pattern = Term::var("p", Type::bool_());
+        let abducible = Abducible::new(pattern, "test-source");
+        let cand = Candidate::with_one(&abducible);
+
+        let sat_result = SatResult::Abductive {
+            candidates: vec![cand],
+        };
+        let verdict = verdict_of(sat_result);
+
+        match verdict {
+            AdsmtVerdict::Abductive { candidates } => {
+                assert_eq!(candidates.len(), 1);
+                let c = &candidates[0];
+                assert_eq!(c.id, 0);
+                assert_eq!(c.rank, 0);
+                assert_eq!(c.hypothesis.len(), 1);
+                assert_eq!(c.justification, "test-source");
+            }
+            other => panic!("expected Abductive, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn verdict_of_unsat_emits_cert_text_when_present() {
+        // No certificate (proof mode off) → empty cert string.
+        let verdict = verdict_of(SatResult::Unsat { certificate: None });
+        match verdict {
+            AdsmtVerdict::Unsat { cert, .. } => assert_eq!(cert, ""),
+            other => panic!("expected Unsat, got {other:?}"),
+        }
     }
 }
