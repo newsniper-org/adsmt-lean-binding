@@ -6,9 +6,11 @@
 //! shape changes here, the Lean side and any cached schema hash
 //! must rotate together.
 
+use leo4::LeanMarshal;
+
 /// One of the four adsmt verdict variants. Mirror of the Lean
 /// `inductive AdsmtVerdict` in `lake/Adsmt/Verdict.lean`.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, LeanMarshal)]
 pub enum AdsmtVerdict {
     /// SAT verdict with an optional model (list of
     /// `(variable_name, value_smtlib_text)` pairs).
@@ -26,7 +28,7 @@ pub enum AdsmtVerdict {
 
 /// A single abductive candidate. Mirror of the Lean
 /// `structure AbductiveCandidate` in `lake/Adsmt/Verdict.lean`.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, LeanMarshal)]
 pub struct AbductiveCandidate {
     /// Stable id assigned by the engine for this candidate
     /// within the current `check-sat` call.
