@@ -1,0 +1,21 @@
+-- Minimal elaboration-only smoke for `leo4-oxilean-runner::run_main_diagnostics`.
+--
+-- OxiLean v0.1.3-leo4-ox7's bootstrap env (per
+-- `leo4-oxilean-bootstrap::LEO4_PRIMITIVE_TYPES` +
+-- prelude) covers only pure type-theory: Bool / Nat /
+-- String / List / scalar carriers / arithmetic typeclass
+-- projections. It does NOT include `IO`, `IO.println`, or
+-- `pure` — so a real `def main : IO Unit := ...` cannot
+-- elaborate.
+--
+-- This file therefore exercises only the runner's wiring
+-- through bootstrap + parse + elab. The runtime driver
+-- (`oxilean_runtime::driver::run_main`) call after
+-- elaboration will report "main not found" since there's
+-- no `main`, but the `run_main_diagnostics` entry returns
+-- the counter struct without invoking the driver, so the
+-- test result is what we want: a positive smoke that the
+-- cdylib + EXPORTS + USER_TYPES walks succeeded and the
+-- elaborator accepted the file.
+
+def adsmt_runtime_smoke_marker : Nat := 42
