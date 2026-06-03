@@ -47,7 +47,7 @@ published-form intent is:
 
 | Dependency | Published pin | Why |
 |---|---|---|
-| leo4 | `tag = "v1.0.0-rc.4"` | Phase 10 cuttable state + RC.2-4 typed-enum fix chain |
+| leo4 | `tag = "v1.0.0-rc.5"` | Phase 10 cuttable state + RC.2-5 typed-enum fix chain (RC.5 closes the leo4-oxilean-build asymmetry — rust-transpile reverse path now emits typed wrappers) |
 | adsmt-cert, adsmt-core, adsmt-engine, adsmt-parser | `branch = "testing"` | Consumer line until adsmt v1.0.0 cuts |
 
 When adsmt main cuts v1.0.0 stable, the adsmt pins switch to
@@ -99,18 +99,44 @@ binding can call.
 
 ## Build
 
-```bash
-# Rust side (cdylib)
-cargo build --release
+Two paths verified under leo4 v1.0.0-rc.5:
 
-# Lean side (after the Rust cdylib exists)
-lake update
-lake build
+### Path A — rust-transpile reverse (no Lake, no Lean toolchain) ✓
+
+```bash
+# 1. Build the cdylib.
+cargo build --release -p adsmt-lean-rt
+
+# 2. Emit the typed Lean wrapper from the cdylib's USER_TYPES slice.
+~/leo4/sibling/leo4-oxilean-build/target/release/leo4-oxilean-build \
+    --mode reverse \
+    --cdylib target/release/libadsmt_lean_rt.so \
+    --iface Adsmt \
+    --out .leo4-emit/Adsmt/Rust.lean
+
+# 3. (Optional) Drive the wrapper via leo4-oxilean evaluator.
+#    See ~/leo4/examples/05-rust-export/README.md for the
+#    cargo-run-with-LEO4_OXILEAN_* env-var pattern.
+```
+
+Step 2 emits the full typed surface — `AdsmtVerdict` /
+`AbductiveCandidate` mirror inductives + the
+`@[extern "leo4_rust__run_check_sat__str"] opaque run_check_sat`
+declaration with the typed return.
+
+### Path B — mslean4 reverse (Lake + leanc, hand-written goal-closing tactics)
+
+```bash
+# 1. Rust cdylib (same as Path A).
+cargo build --release -p adsmt-lean-rt
+
+# 2. Lake side (D8 pattern). Not yet wired — manual lake build
+#    against `lakefile.lean`.
 ```
 
 Lake-first / Cargo-second drive (per leo4 D8) is **not yet wired**
-— for v0.1 the two halves build independently and the wrapper
-emission is manual. A `build.rs` hook lands in a follow-up commit.
+on Path B — for v0.2.x the two halves build independently. A
+`build.rs` hook lands in a follow-up commit.
 
 ## License
 

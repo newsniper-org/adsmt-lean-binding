@@ -2,6 +2,7 @@
 /build
 /lake-packages
 /.lake
+/.leo4-emit
 **/*.olean
 **/*.ilean
 **/*.hash
