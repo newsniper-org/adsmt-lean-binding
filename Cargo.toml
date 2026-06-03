@@ -13,7 +13,7 @@ license = "BSD-2-Clause OR Apache-2.0 OR LGPL-2.1-or-later"
 repository = "https://github.com/newsniper-org/adsmt-lean-binding"
 
 [workspace.dependencies]
-# leo4 v1.0.0-rc.5 — local path during v0.1 skeleton work.
+# leo4 v1.0.0-rc.6 — local path during v0.1 skeleton work.
 # RC.2 (b260ed8 + cfda354) + RC.3 (29a941f patch 3) + RC.4
 # (5d786f0 patch 4) + RC.5 (4557593 / 80a918c) together close
 # the typed-enum lowering loop for the reverse direction:
@@ -26,13 +26,20 @@ repository = "https://github.com/newsniper-org/adsmt-lean-binding"
 #           transpile reverse path) gets the same typed-enum
 #           closure; reverse_emit tests 7 → 22, runner USER_TYPES
 #           axiom synth covered end-to-end via `leo4 run`
+#   - RC.6: 4 follow-ups (cbb2af9) — F1 reverse rust-transpile
+#           scaffold template, F2 leo4-oxilean-runner E2E smoke
+#           test (opt-in via LEO4_E2E_* env vars), F3 generic-
+#           instantiation mangle tokeniser (greedy longest-match
+#           against USER_TYPES FQN list), F4 runner USER_TYPES
+#           Inductive/Constructor synthesis (lifts the RC.5 stub
+#           axiom).
 # When this repo goes public (or when leo4 cleans up its
 # nested-submodule chain), swap the path lines for the
 # tag-pinned git declarations below:
 #
-#   leo4        = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.5", features = ["rust-exports"] }
-#   leo4-abi    = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.5" }
-#   leo4-macros = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.5" }
+#   leo4        = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.6", features = ["rust-exports"] }
+#   leo4-abi    = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.6" }
+#   leo4-macros = { git = "https://github.com/newsniper-org/leo4.git", tag = "v1.0.0-rc.6" }
 leo4        = { path = "../leo4/crates/leo4", features = ["rust-exports"] }
 leo4-abi    = { path = "../leo4/crates/leo4-abi" }
 leo4-macros = { path = "../leo4/crates/leo4-macros" }

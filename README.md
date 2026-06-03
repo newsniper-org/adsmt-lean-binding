@@ -47,7 +47,7 @@ published-form intent is:
 
 | Dependency | Published pin | Why |
 |---|---|---|
-| leo4 | `tag = "v1.0.0-rc.5"` | Phase 10 cuttable state + RC.2-5 typed-enum fix chain (RC.5 closes the leo4-oxilean-build asymmetry — rust-transpile reverse path now emits typed wrappers) |
+| leo4 | `tag = "v1.0.0-rc.6"` | Phase 10 cuttable state + RC.2-6 typed-enum fix chain (RC.5 closed the leo4-oxilean-build wrapper-emit asymmetry; RC.6 adds the runner-side `Inductive`/`Constructor` synthesis + generic-instantiation mangle tokeniser) |
 | adsmt-cert, adsmt-core, adsmt-engine, adsmt-parser | `branch = "testing"` | Consumer line until adsmt v1.0.0 cuts |
 
 When adsmt main cuts v1.0.0 stable, the adsmt pins switch to
